@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Geolocalização com Endereço</title>
+</head>
+<body>
+    <h2>Obter Localização Atual e Endereço</h2>
+    <button onclick="getLocation()">Mostrar Minha Localização e Endereço</button>
+    <p id="location">Coordenadas: </p>
+    <p id="address">Endereço: </p>
+    <p id="map-link"></p>
+
+    <script>
+        // Função para obter a localização atual
+        function getLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(showPosition, showError);
+            } else {
+                document.getElementById("location").innerHTML = "Geolocalização não é suportada pelo seu navegador.";
+            }
+        }
+
+        // Função que exibe a localização e obtém o endereço
+        function showPosition(position) {
+            const latitude = position.coords.latitude;
+            const longitude = position.coords.longitude;
+            document.getElementById("location").innerHTML = `Latitude: ${latitude}°, Longitude: ${longitude}°`;
+
+            // Link para visualizar no Google Maps
+            const mapLink = `https://www.google.com/maps?q=${latitude},${longitude}`;
+            document.getElementById("map-link").innerHTML = `<a href="${mapLink}" target="_blank">Ver no Google Maps</a>`;
+
+            // Chamada para API de geocodificação para obter o endereço real
+            const apiKey = "YOUR_API_KEY"; // Substitua pela sua chave de API do OpenCage
+            // Site para gerar a sua chave 
+            // https://opencagedata.com/
+            const url = `https://api.opencagedata.com/geocode/v1/json?q=${latitude}+${longitude}&key=${apiKey}`;
+
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.results && data.results.length > 0) {
+                        const address = data.results[0].formatted;
+                        document.getElementById("address").innerHTML = `Endereço: ${address}`;
+                    } else {
+                        document.getElementById("address").innerHTML = "Não foi possível obter o endereço.";
+                    }
+                })
+                .catch(error => {
+                    console.error("Erro ao obter o endereço:", error);
+                    document.getElementById("address").innerHTML = "Erro ao buscar o endereço.";
+                });
+        }
+
+        // Função para tratar erros
+        function showError(error) {
+            switch (error.code) {
+                case error.PERMISSION_DENIED:
+                    document.getElementById("location").innerHTML = "Usuário negou a solicitação de Geolocalização.";
+                    break;
+                case error.POSITION_UNAVAILABLE:
+                    document.getElementById("location").innerHTML = "Informações de localização indisponíveis.";
+                    break;
+                case error.TIMEOUT:
+                    document.getElementById("location").innerHTML = "A solicitação para obter a localização expirou.";
+                    break;
+                case error.UNKNOWN_ERROR:
+                    document.getElementById("location").innerHTML = "Ocorreu um erro desconhecido.";
+                    break;
+            }
+        }
+    </script>
+</body>
+</html>

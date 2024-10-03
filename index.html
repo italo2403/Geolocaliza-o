@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Geolocalização com HTML e JavaScript</title>
+</head>
+<body>
+    <h2>Obter Localização Atual</h2>
+    <button onclick="getLocation()">Mostrar Minha Localização</button>
+    <p id="location">Coordenadas: </p>
+    <p id="map-link"></p>
+
+    <script>
+        // Função de geolocalização
+        function getLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(showPosition, showError);
+            } else {
+                document.getElementById("location").innerHTML = "Geolocalização não é suportada pelo seu navegador.";
+            }
+        }
+
+        // Aqui você verá a localização em tempo real 
+        function showPosition(position) {
+            const latitude = position.coords.latitude;
+            const longitude = position.coords.longitude;
+            document.getElementById("location").innerHTML = `Latitude: ${latitude}°, Longitude: ${longitude}°`;
+
+            // Visualização no Google Maps 
+            const mapLink = `https://www.google.com/maps?q=${latitude},${longitude}`;
+            document.getElementById("map-link").innerHTML = `<a href="${mapLink}" target="_blank">Ver no Google Maps</a>`;
+        }
+
+        // Tratamento de erros da função 
+        function showError(error) {
+            switch (error.code) {
+                case error.PERMISSION_DENIED:
+                    document.getElementById("location").innerHTML = "Usuário negou a solicitação de Geolocalização.";
+                    break;
+                case error.POSITION_UNAVAILABLE:
+                    document.getElementById("location").innerHTML = "Informações de localização indisponíveis.";
+                    break;
+                case error.TIMEOUT:
+                    document.getElementById("location").innerHTML = "A solicitação para obter a localização expirou.";
+                    break;
+                case error.UNKNOWN_ERROR:
+                    document.getElementById("location").innerHTML = "Ocorreu um erro desconhecido.";
+                    break;
+            }
+        }
+    </script>
+</body>
+</html>
